@@ -1,9 +1,9 @@
 """
 Construction des prompts envoyés au modèle LLM.
 
-Un prompt est la consigne donnée au modèle. Dans cette maquette, l'utilisateur
-choisit une tâche dans l'interface, puis ce fichier transforme son message en
-instruction claire pour google/flan-t5-small.
+Un prompt est la consigne donnée au modèle. Dans cette maquette, l'application
+détecte la tâche à partir du message utilisateur, puis ce fichier transforme ce
+message en instruction claire pour google/flan-t5-small.
 """
 
 
@@ -13,7 +13,8 @@ instruction claire pour google/flan-t5-small.
 FRENCH_ONLY_INSTRUCTION = (
     "Règle obligatoire : réponds uniquement en français. "
     "N'utilise pas l'anglais, sauf si l'utilisateur demande explicitement une traduction. "
-    "Ne répète pas plusieurs fois la même phrase."
+    "Ne répète pas plusieurs fois la même phrase. "
+    "Si l'information manque ou dépasse le périmètre, oriente vers le support Expertisys."
 )
 
 EMAIL_PROMPT_TEMPLATE = (
@@ -232,7 +233,7 @@ def build_prompt(task_type, user_text, style=None, context=None):
     """
     Construit le prompt complet envoyé au modèle.
 
-    Cette fonction adapte le prompt selon la tâche choisie par l'utilisateur.
+    Cette fonction adapte le prompt selon la tâche détectée ou choisie.
     Le contexte FAQ, s'il existe, est ajouté pour orienter la réponse vers les
     informations propres à Expertisys.
     """

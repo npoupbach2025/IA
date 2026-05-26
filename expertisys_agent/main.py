@@ -21,6 +21,7 @@ from src.utils import (
     clean_response,
     detect_task_type,
     get_example_prompts,
+    get_task_from_label,
     get_task_label,
     is_email_request,
     is_password_request,
@@ -194,9 +195,8 @@ class ExpertisysApp:
         chat_frame.rowconfigure(1, weight=1)
         chat_frame.columnconfigure(0, weight=1)
 
-        # Ligne supérieure : la tâche est détectée automatiquement à partir du
-        # message utilisateur. On garde seulement le style comme option utile
-        # pour les demandes de reformulation.
+        # Ligne supérieure : la tâche est en mode automatique par défaut, mais
+        # un choix manuel reste disponible pour tester la maquette.
         options = ttk.Frame(chat_frame, style="Panel.TFrame")
         options.grid(row=0, column=0, sticky="ew", pady=(0, 10))
         options.columnconfigure(1, weight=1)
@@ -206,13 +206,24 @@ class ExpertisysApp:
             row=0, column=0, sticky=tk.W, padx=(0, 8)
         )
 
-        self.detected_task_var = tk.StringVar(value="Détection automatique")
-        ttk.Label(
+        self.task_labels = [
+            "Automatique",
+            get_task_label("question_answering"),
+            get_task_label("generation"),
+            get_task_label("rewriting"),
+            get_task_label("completion"),
+            get_task_label("cybersecurity"),
+            get_task_label("support"),
+        ]
+        self.task_mode_var = tk.StringVar(value="Automatique")
+        self.task_combo = ttk.Combobox(
             options,
-            textvariable=self.detected_task_var,
-            style="Panel.TLabel",
-            font=("Segoe UI", 10, "bold"),
-        ).grid(row=0, column=1, sticky=tk.W, padx=(0, 14))
+            textvariable=self.task_mode_var,
+            values=self.task_labels,
+            state="readonly",
+            width=28,
+        )
+        self.task_combo.grid(row=0, column=1, sticky="ew", padx=(0, 14))
 
         ttk.Label(options, text="Style", style="Panel.TLabel").grid(
             row=0, column=2, sticky=tk.W, padx=(0, 8)
@@ -227,6 +238,15 @@ class ExpertisysApp:
             width=18,
         )
         self.style_combo.grid(row=0, column=3, sticky="ew")
+
+        self.detected_task_var = tk.StringVar(
+            value="Tâche utilisée : détection automatique"
+        )
+        ttk.Label(
+            options,
+            textvariable=self.detected_task_var,
+            style="Muted.Panel.TLabel",
+        ).grid(row=1, column=0, columnspan=4, sticky=tk.W, pady=(6, 0))
 
         # Zone de chat avec historique des messages.
         # Un Canvas est utilisé car il permet d'ajouter un contenu défilable
@@ -417,10 +437,11 @@ class ExpertisysApp:
             justify=tk.LEFT,
         ).grid(row=6, column=0, sticky=tk.W, pady=(8, 0))
 
-    def _update_detected_task(self, task_type):
-        """Affiche dans l'interface la tâche détectée automatiquement."""
+    def _update_detected_task(self, task_type, is_automatic=True):
+        """Affiche dans l'interface la tâche réellement utilisée."""
         label = get_task_label(task_type)
-        self.detected_task_var.set(f"Détectée : {label}")
+        prefix = "Détectée" if is_automatic else "Choisie"
+        self.detected_task_var.set(f"Tâche utilisée : {prefix} - {label}")
 
     def _update_scroll_region(self, _event=None):
         """Met à jour la zone défilable quand un nouveau message est ajouté."""
@@ -549,7 +570,7 @@ class ExpertisysApp:
         self.is_generating = generating
         if generating:
             self.send_button.configure(state="disabled")
-            self._add_status_message("Génération de la réponse en cours...")
+            self._add_status_message("Assistant Expertisys réfléchit...")
         else:
             self.send_button.configure(state="normal")
             self._remove_status_message()
@@ -564,10 +585,16 @@ class ExpertisysApp:
         la réponse, puis utilise root.after() pour revenir dans le thread Tkinter.
         """
         try:
-            # La tâche est déterminée automatiquement à partir du texte saisi.
-            # L'utilisateur n'a donc plus besoin de choisir un mode dans un menu.
-            task_type = detect_task_type(user_text)
-            self.root.after(0, self._update_detected_task, task_type)
+            # La tâche est déterminée automatiquement, sauf si l'utilisateur
+            # choisit explicitement un mode dans le menu de test.
+            selected_task = self.task_mode_var.get()
+            is_automatic = selected_task == "Automatique"
+            task_type = (
+                detect_task_type(user_text)
+                if is_automatic
+                else get_task_from_label(selected_task)
+            )
+            self.root.after(0, self._update_detected_task, task_type, is_automatic)
 
             # Pour les demandes simples de rédaction de mail, on utilise une
             # réponse structurée contrôlée. Cela évite que le petit modèle

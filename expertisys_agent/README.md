@@ -31,6 +31,8 @@ google/flan-t5-small
 
 La première exécution peut être plus longue car le modèle est téléchargé depuis Hugging Face.
 
+Un compte Hugging Face gratuit et un token `HF_TOKEN` peuvent être utilisés pour éviter certaines limites de téléchargement, mais ce n'est pas obligatoire pour ce modèle public.
+
 ## Structure du projet
 
 ```text
@@ -69,6 +71,8 @@ python main.py
 ```
 
 Une fenêtre Tkinter intitulée **Assistant IA Expertisys** s'ouvre alors. L'utilisateur saisit directement son message, l'application détecte automatiquement le type de tâche, puis la réponse apparaît dans l'historique de conversation.
+
+Le menu de tâche est réglé sur **Automatique** par défaut. Il peut être utilisé manuellement pour tester un mode précis, mais l'utilisateur n'a pas besoin de le modifier pour utiliser l'assistant.
 
 ## Documentation complémentaire
 
@@ -111,6 +115,10 @@ Cette maquette n'est pas un assistant de production :
 - aucune authentification utilisateur n'est mise en place ;
 - l'application ne doit pas traiter de données sensibles ;
 - les conseils cybersécurité restent généraux et ne remplacent pas un expert.
+
+Ce prototype est une aide à l'information. Il ne remplace pas le support humain Expertisys et les réponses doivent être vérifiées pour les demandes sensibles.
+
+Pour la cybersécurité, l'assistant doit rester sur des conseils défensifs : prévention, détection, signalement et bonnes pratiques. Il ne doit pas expliquer comment attaquer, contourner ou compromettre un système.
 
 ## Conclusion
 

@@ -14,6 +14,8 @@ python main.py
 
 Une fenêtre locale s'ouvre. Dans cette fenêtre, l'utilisateur peut écrire une question ou une demande. L'application détecte automatiquement le type de tâche, puis affiche une réponse générée par le modèle ou par une réponse contrôlée pour certains cas simples.
 
+Le menu de tâche reste présent avec un mode **Automatique** par défaut. Il sert surtout à montrer au jury que les différents modes existent, mais l'utilisateur peut utiliser l'assistant sans toucher à ce menu.
+
 L'application peut servir à tester plusieurs usages :
 
 - répondre à une question ;
@@ -86,7 +88,8 @@ Il sert à créer l'interface graphique avec Tkinter. C'est lui qui affiche :
 - le champ de saisie ;
 - le bouton Envoyer ;
 - le bouton Effacer la conversation ;
-- les menus pour choisir la tâche et le style ;
+- le menu de tâche en mode automatique par défaut ;
+- le menu de style pour les reformulations ;
 - la colonne de droite avec les exemples de prompts.
 
 Il ne contient pas directement toute l'intelligence de l'application. Il appelle les autres fichiers du dossier `src/`.

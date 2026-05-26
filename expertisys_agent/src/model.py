@@ -1,4 +1,11 @@
+import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+
+FALLBACK_RESPONSE = (
+    "Je n'ai pas pu générer une réponse fiable. Merci de reformuler votre "
+    "demande ou de contacter le support Expertisys."
+)
 
 
 class ExpertisysLLM:
@@ -32,6 +39,7 @@ class ExpertisysLLM:
             # Le tokenizer transforme le texte en identifiants numériques que le
             # modèle peut comprendre, puis reconvertit la sortie en texte lisible.
             self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name)
+            self.model.eval()
             self.is_ready = True
         except Exception as exc:
             # En cas d'erreur, l'application continue de s'ouvrir et affiche un
@@ -42,7 +50,6 @@ class ExpertisysLLM:
                 "puis réessayez. "
                 f"Détail technique : {exc}"
             )
-            print(self.load_error)
 
     # Génération de réponse à partir du prompt construit pour la tâche.
     def generate(self, prompt):
@@ -63,28 +70,25 @@ class ExpertisysLLM:
 
             # La longueur est limitée pour garder des réponses courtes, lisibles
             # et adaptées à une interface de support client.
-            outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=160,
-                do_sample=False,
-                num_beams=4,
-                no_repeat_ngram_size=3,
-                repetition_penalty=1.8,
-                early_stopping=True,
-            )
+            with torch.no_grad():
+                outputs = self.model.generate(
+                    **inputs,
+                    max_new_tokens=120,
+                    do_sample=False,
+                    num_beams=4,
+                    no_repeat_ngram_size=3,
+                    repetition_penalty=1.6,
+                    early_stopping=True,
+                )
 
             # La sortie numérique du modèle est reconvertie en texte lisible.
             response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             if not response.strip():
-                return (
-                    "Je n'ai pas pu générer une réponse fiable. Merci de reformuler "
-                    "ou de contacter le support Expertisys."
-                )
+                return FALLBACK_RESPONSE
 
             return response
         except Exception as exc:
             return (
-                "Une erreur est survenue pendant la génération de la réponse. "
-                "Merci de reformuler ou de contacter le support Expertisys. "
+                f"{FALLBACK_RESPONSE} "
                 f"Détail technique : {exc}"
             )

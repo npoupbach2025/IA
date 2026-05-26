@@ -226,6 +226,19 @@ def detect_task_type(user_text):
 
     if is_email_request(text):
         return "generation"
+    if (
+        "message pour" in text
+        or "génère un message" in text
+        or "genere un message" in text
+    ):
+        return "generation"
+    if "mot de passe" in text and (
+        "sécurisé" in text
+        or "securise" in text
+        or "fort" in text
+        or "robuste" in text
+    ):
+        return "cybersecurity"
     if is_password_request(text):
         return "support"
     if any(keyword in text for keyword in rewriting_keywords):
