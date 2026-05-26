@@ -52,14 +52,76 @@ def get_example_prompts():
         "Comment créer un mot de passe sécurisé ?",
         "Comment reconnaître un email de phishing ?",
         "Je n'arrive pas à me connecter à mon compte.",
+        "Que faire si mon compte Expertisys est verrouillé ?",
+        "Pourquoi activer la double authentification ?",
+        "Comment suivre l'état de mon ticket support ?",
+        "Comment signaler un incident de sécurité ?",
+        "Que faire si j'ai reçu un email suspect ?",
+        "Comment vérifier qu'un site est légitime ?",
+        "Quelles informations fournir au support Expertisys ?",
+        "Comment modifier mon adresse e-mail de contact ?",
+        "Comment demander une assistance prioritaire ?",
+        "Comment éviter de partager des données sensibles ?",
+        "Comment sécuriser mon poste de travail ?",
+        "Que faire si j'ai téléchargé une pièce jointe suspecte ?",
+        "Comment contacter le support Expertisys ?",
+        "Comment créer un compte utilisateur Expertisys ?",
+        "Je n'ai pas reçu l'e-mail d'activation de mon compte.",
+        "Le portail client affiche une erreur, que dois-je faire ?",
+        "Je veux expliquer simplement ce qu'est le phishing.",
+        "Donne trois bonnes pratiques pour protéger un ordinateur professionnel.",
+        "Donne une réponse courte à un client qui a oublié son mot de passe.",
+        "Génère un message d'accueil pour l'assistant IA Expertisys.",
+        "Génère un message court pour confirmer la prise en charge d'un ticket support.",
+        "Génère un texte professionnel pour présenter le support Expertisys.",
+        "Génère un message de prévention sur les mots de passe faibles.",
+        "Génère une réponse polie pour demander plus d'informations à un client.",
+        "Génère un message pour informer qu'un ticket est en cours d'analyse.",
+        "Génère une courte annonce interne sur la cybersécurité.",
+        "Génère une réponse pour rassurer un client après l'ouverture d'un ticket.",
         (
             "Réécris ce message dans un style professionnel : j'ai un problème "
             "avec mon accès, ça ne marche pas."
         ),
         (
+            "Réécris ce message dans un style formel : salut, mon compte est "
+            "bloqué et j'ai besoin d'aide vite."
+        ),
+        (
+            "Réécris ce message dans un style simple : veuillez procéder à la "
+            "réinitialisation de vos identifiants d'accès."
+        ),
+        (
+            "Réécris ce message dans un style amical : votre demande a bien été "
+            "reçue par notre support."
+        ),
+        (
+            "Réécris ce message dans un style synthétique : nous avons identifié "
+            "un incident de connexion et nos équipes vérifient la situation."
+        ),
+        (
             "Complète cette idée : pour améliorer la sécurité des postes "
             "utilisateurs, il faut..."
         ),
-        "Génère un message court pour confirmer la prise en charge d'un ticket support.",
-        "Comment contacter le support Expertisys ?",
+        (
+            "Complète cette idée : un bon assistant support doit aider le client "
+            "à..."
+        ),
+        (
+            "Complète cette idée : avant de cliquer sur un lien reçu par e-mail, "
+            "il est important de..."
+        ),
+        (
+            "Complète cette idée : pour réduire les risques liés aux mots de "
+            "passe, une entreprise peut..."
+        ),
+        (
+            "Complète cette idée : lorsqu'un incident de sécurité est suspecté, "
+            "le premier réflexe est de..."
+        ),
+        "Réponds à ce client : je ne comprends pas pourquoi mon accès ne fonctionne plus.",
+        "Réponds à ce client : pouvez-vous me dire où trouver mes tickets ouverts ?",
+        "Réponds à ce client : je pense avoir cliqué sur un lien frauduleux.",
+        "Réponds à ce client : mon mot de passe a peut-être été compromis.",
+        "Réponds à ce client : je souhaite changer mes coordonnées de contact.",
     ]

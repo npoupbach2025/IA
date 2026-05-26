@@ -39,6 +39,7 @@ expertisys_agent/
 ├── main.py
 ├── requirements.txt
 ├── README.md
+├── ARCHITECTURE_EXPLICATION.md
 │
 ├── data/
 │   └── expertisys_faq.json
@@ -68,6 +69,10 @@ python main.py
 ```
 
 Une fenêtre Tkinter intitulée **Assistant IA Expertisys** s'ouvre alors. L'utilisateur peut choisir le type de tâche, saisir un message, envoyer la demande et consulter la réponse dans l'historique de conversation.
+
+## Documentation complémentaire
+
+Le fichier `ARCHITECTURE_EXPLICATION.md` explique le projet avec un vocabulaire plus simple. Il détaille le rôle de chaque fichier, le fonctionnement général de l'application, le choix du modèle, la logique des prompts et les limites du prototype.
 
 ## Fonctionnement
 

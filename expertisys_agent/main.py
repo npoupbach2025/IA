@@ -308,6 +308,7 @@ class ExpertisysApp:
         side_panel = ttk.Frame(parent, style="Panel.TFrame", padding=14)
         side_panel.grid(row=0, column=1, sticky="nsew")
         side_panel.columnconfigure(0, weight=1)
+        side_panel.rowconfigure(3, weight=1)
 
         ttk.Label(
             side_panel,
@@ -330,19 +331,72 @@ class ExpertisysApp:
             font=("Segoe UI", 10, "bold"),
         ).grid(row=2, column=0, sticky=tk.W, pady=(0, 8))
 
-        examples_frame = ttk.Frame(side_panel, style="Panel.TFrame")
-        examples_frame.grid(row=3, column=0, sticky="ew")
-        examples_frame.columnconfigure(0, weight=1)
+        # Comme il y a maintenant beaucoup d'exemples, on les place dans une
+        # petite zone défilable. L'interface reste ainsi propre même sur un écran
+        # de taille moyenne.
+        examples_container = ttk.Frame(side_panel, style="Panel.TFrame")
+        examples_container.grid(row=3, column=0, sticky="nsew")
+        examples_container.rowconfigure(0, weight=1)
+        examples_container.columnconfigure(0, weight=1)
+
+        examples_canvas = tk.Canvas(
+            examples_container,
+            bg=self.colors["panel"],
+            highlightthickness=0,
+            height=280,
+        )
+        examples_canvas.grid(row=0, column=0, sticky="nsew")
+
+        examples_scrollbar = ttk.Scrollbar(
+            examples_container,
+            orient=tk.VERTICAL,
+            command=examples_canvas.yview,
+        )
+        examples_scrollbar.grid(row=0, column=1, sticky="ns")
+        examples_canvas.configure(yscrollcommand=examples_scrollbar.set)
+
+        examples_frame = tk.Frame(examples_canvas, bg=self.colors["panel"])
+        examples_window = examples_canvas.create_window(
+            (0, 0),
+            window=examples_frame,
+            anchor="nw",
+        )
+
+        examples_frame.bind(
+            "<Configure>",
+            lambda _event: examples_canvas.configure(
+                scrollregion=examples_canvas.bbox("all")
+            ),
+        )
+        examples_canvas.bind(
+            "<Configure>",
+            lambda event: examples_canvas.itemconfig(
+                examples_window,
+                width=event.width,
+            ),
+        )
 
         for index, example in enumerate(get_example_prompts()):
             # Le lambda avec value=example mémorise la valeur actuelle de la
             # boucle. Sans cela, tous les boutons utiliseraient le dernier exemple.
-            button = ttk.Button(
+            button = tk.Button(
                 examples_frame,
                 text=example,
                 command=lambda value=example: self.insert_example(value),
+                bg="#f7f9fb",
+                fg=self.colors["text"],
+                activebackground="#e7eef6",
+                activeforeground=self.colors["text"],
+                relief=tk.SOLID,
+                borderwidth=1,
+                padx=8,
+                pady=6,
+                anchor=tk.W,
+                justify=tk.LEFT,
+                wraplength=225,
+                font=("Segoe UI", 9),
             )
-            button.grid(row=index, column=0, sticky="ew", pady=3)
+            button.pack(fill=tk.X, pady=3)
 
         ttk.Separator(side_panel).grid(row=4, column=0, sticky="ew", pady=18)
 
