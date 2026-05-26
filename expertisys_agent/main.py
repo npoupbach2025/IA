@@ -15,10 +15,12 @@ from src.knowledge_base import KnowledgeBase
 from src.model import ExpertisysLLM
 from src.prompts import build_prompt
 from src.utils import (
+    build_email_response,
     clean_response,
     get_example_prompts,
     get_task_from_label,
     get_task_label,
+    is_email_request,
 )
 
 
@@ -529,7 +531,7 @@ class ExpertisysApp:
             messagebox.showinfo("Message vide", "Veuillez saisir un message.")
             return
 
-        if not self.llm.is_ready:
+        if not self.llm.is_ready and not is_email_request(user_text):
             self._add_assistant_message(self.llm.load_error)
             return
 
@@ -568,6 +570,15 @@ class ExpertisysApp:
         la réponse, puis utilise root.after() pour revenir dans le thread Tkinter.
         """
         try:
+            # Pour les demandes simples de rédaction de mail, on utilise une
+            # réponse structurée contrôlée. Cela évite que le petit modèle
+            # recopie le prompt au lieu de rédiger le message attendu.
+            if is_email_request(user_text):
+                response = build_email_response(user_text)
+                response = clean_response(response)
+                self.root.after(0, self._display_generated_response, response)
+                return
+
             # On convertit le libellé affiché dans l'interface en identifiant
             # interne utilisé par le code.
             task_type = get_task_from_label(task_label)

@@ -1,3 +1,6 @@
+import re
+
+
 TASK_LABELS = {
     # Dictionnaire central entre les identifiants utilisés par le code et les
     # libellés affichés dans l'interface Tkinter.
@@ -25,6 +28,93 @@ def clean_response(text):
     lines = [line.strip() for line in text.strip().splitlines()]
     cleaned_lines = [line for line in lines if line]
     return "\n".join(cleaned_lines)
+
+
+def is_email_request(user_text):
+    """
+    Détecte si l'utilisateur demande la rédaction d'un e-mail.
+
+    Le petit modèle utilisé dans la maquette peut parfois recopier le prompt au
+    lieu de rédiger le mail. Cette détection permet de traiter ce cas fréquent
+    avec une réponse contrôlée et beaucoup plus propre.
+    """
+    text = user_text.lower()
+    writing_words = [
+        "écris",
+        "ecris",
+        "écrit",
+        "ecrit",
+        "écrire",
+        "ecrire",
+        "rédige",
+        "redige",
+        "rédiger",
+        "rediger",
+        "prépare",
+        "prepare",
+        "faire",
+        "fais",
+    ]
+    email_words = ["mail", "email", "e-mail", "courriel"]
+    return any(word in text for word in writing_words) and any(
+        word in text for word in email_words
+    )
+
+
+def _extract_email_purpose(user_text):
+    """
+    Récupère le sujet principal du mail demandé.
+
+    Exemple : "écris un mail pour dire que mon compte est bloqué" devient
+    "mon compte est bloqué".
+    """
+    text = user_text.strip()
+    patterns = [
+        r"pour dire que\s+(.+)",
+        r"pour expliquer que\s+(.+)",
+        r"pour indiquer que\s+(.+)",
+        r"concernant\s+(.+)",
+        r"au sujet de\s+(.+)",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, text, flags=re.IGNORECASE)
+        if match:
+            return match.group(1).strip(" .,*")
+
+    return "j'ai besoin d'assistance concernant mon accès"
+
+
+def build_email_response(user_text):
+    """
+    Génère directement un e-mail simple en français.
+
+    Ce n'est pas un remplacement du LLM pour toute l'application. C'est un
+    garde-fou pour un cas très courant où un petit modèle peut produire une
+    sortie peu présentable.
+    """
+    purpose = _extract_email_purpose(user_text)
+    purpose_lower = purpose.lower()
+
+    if "compte" in purpose_lower and (
+        "bloqué" in purpose_lower or "bloque" in purpose_lower
+    ):
+        subject = "Demande d'assistance - compte bloqué"
+        main_sentence = "mon compte est actuellement bloqué et je ne parviens plus à y accéder"
+    else:
+        subject = "Demande d'assistance"
+        main_sentence = purpose
+
+    return (
+        f"Objet : {subject}\n\n"
+        "Bonjour,\n\n"
+        f"Je me permets de vous contacter car {main_sentence}.\n\n"
+        "Pouvez-vous m'aider à résoudre ce problème ou m'indiquer les étapes à suivre ? "
+        "Je reste disponible pour vous transmettre toute information complémentaire "
+        "nécessaire au traitement de ma demande.\n\n"
+        "Cordialement,\n"
+        "[Votre nom]"
+    )
 
 
 def get_task_label(task_type):
