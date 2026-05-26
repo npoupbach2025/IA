@@ -15,12 +15,16 @@ from src.knowledge_base import KnowledgeBase
 from src.model import ExpertisysLLM
 from src.prompts import build_prompt
 from src.utils import (
+    build_french_fallback_response,
     build_email_response,
+    build_password_response,
     clean_response,
     get_example_prompts,
     get_task_from_label,
     get_task_label,
     is_email_request,
+    is_password_request,
+    response_needs_french_fallback,
 )
 
 
@@ -531,7 +535,9 @@ class ExpertisysApp:
             messagebox.showinfo("Message vide", "Veuillez saisir un message.")
             return
 
-        if not self.llm.is_ready and not is_email_request(user_text):
+        if not self.llm.is_ready and not (
+            is_email_request(user_text) or is_password_request(user_text)
+        ):
             self._add_assistant_message(self.llm.load_error)
             return
 
@@ -579,6 +585,14 @@ class ExpertisysApp:
                 self.root.after(0, self._display_generated_response, response)
                 return
 
+            # Même logique pour le changement de mot de passe : c'est une FAQ
+            # critique, donc on préfère une réponse française sûre et stable.
+            if is_password_request(user_text):
+                response = build_password_response()
+                response = clean_response(response)
+                self.root.after(0, self._display_generated_response, response)
+                return
+
             # On convertit le libellé affiché dans l'interface en identifiant
             # interne utilisé par le code.
             task_type = get_task_from_label(task_label)
@@ -597,6 +611,11 @@ class ExpertisysApp:
             # uniquement à guider le modèle.
             response = self.llm.generate(prompt)
             response = clean_response(response)
+
+            # Dernier garde-fou : si le modèle répond en anglais ou recopie des
+            # morceaux du prompt, on remplace par une réponse française contrôlée.
+            if response_needs_french_fallback(response):
+                response = build_french_fallback_response(user_text, context)
         except Exception as exc:
             response = (
                 "Une erreur est survenue pendant la génération. "

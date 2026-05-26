@@ -30,6 +30,104 @@ def clean_response(text):
     return "\n".join(cleaned_lines)
 
 
+def response_needs_french_fallback(text):
+    """
+    Repère les réponses qui ne respectent pas la contrainte "français uniquement".
+
+    Le modèle peut parfois traduire une partie du prompt ou répondre en anglais.
+    Cette fonction détecte quelques marqueurs fréquents pour éviter d'afficher
+    une réponse peu présentable dans l'application.
+    """
+    if not text:
+        return True
+
+    lowered = text.lower()
+    english_markers = [
+        "what should",
+        "if i want",
+        "recommendations",
+        "change immediately",
+        "the user",
+        "user asks",
+        "write directly",
+        "question close",
+        "what must be",
+        "must be confirmed",
+        "may tu me dire",
+        "changing my",
+        "contact expertisys to verify your identity",
+    ]
+    return any(marker in lowered for marker in english_markers)
+
+
+def extract_answer_from_context(context):
+    """
+    Extrait la réponse Expertisys depuis le contexte de FAQ.
+
+    Le contexte est construit dans knowledge_base.py. Cette fonction permet de
+    récupérer uniquement la partie utile si le modèle produit une mauvaise
+    réponse et qu'il faut afficher une réponse française contrôlée.
+    """
+    if not context or "Réponse Expertisys :" not in context:
+        return None
+
+    answer_part = context.split("Réponse Expertisys :", 1)[1]
+    answer = answer_part.split("Catégorie :", 1)[0].strip()
+    return answer or None
+
+
+def build_french_fallback_response(user_text, context=None):
+    """
+    Construit une réponse de secours entièrement en français.
+
+    Cette réponse est utilisée quand le modèle répond en anglais ou recopie le
+    prompt. Elle privilégie la FAQ si une information pertinente a été trouvée.
+    """
+    faq_answer = extract_answer_from_context(context)
+    if faq_answer:
+        return f"D'après la base Expertisys : {faq_answer}"
+
+    return (
+        "Je peux vous aider, mais je n'ai pas trouvé de réponse suffisamment "
+        "fiable dans la base Expertisys. Merci de reformuler votre demande ou "
+        "de contacter le support Expertisys pour une vérification."
+    )
+
+
+def is_password_request(user_text):
+    """
+    Détecte une demande courante liée au changement de mot de passe.
+
+    Ce cas revient souvent en support. On le traite directement pour éviter une
+    réponse en anglais ou une réponse trop approximative du petit modèle.
+    """
+    text = user_text.lower()
+    password_words = ["mot de passe", "password"]
+    action_words = [
+        "changer",
+        "modifier",
+        "réinitialiser",
+        "reinitialiser",
+        "oublié",
+        "oublie",
+        "perdu",
+    ]
+    return any(word in text for word in password_words) and any(
+        word in text for word in action_words
+    )
+
+
+def build_password_response():
+    """Retourne une réponse support simple pour le changement de mot de passe."""
+    return (
+        "Pour changer ou réinitialiser votre mot de passe Expertisys, allez sur "
+        "la page de connexion puis cliquez sur \"Mot de passe oublié\". Saisissez "
+        "votre adresse e-mail professionnelle et suivez le lien reçu par e-mail.\n\n"
+        "Si vous ne recevez pas le message ou si votre compte semble bloqué, "
+        "contactez le support Expertisys afin qu'il vérifie votre accès."
+    )
+
+
 def is_email_request(user_text):
     """
     Détecte si l'utilisateur demande la rédaction d'un e-mail.
