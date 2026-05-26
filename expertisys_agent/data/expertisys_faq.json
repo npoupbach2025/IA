@@ -1,0 +1,104 @@
+[
+  {
+    "question": "Comment réinitialiser mon mot de passe ?",
+    "answer": "Depuis la page de connexion Expertisys, cliquez sur 'Mot de passe oublié', saisissez votre adresse e-mail professionnelle, puis suivez le lien de réinitialisation reçu par e-mail.",
+    "category": "mot de passe",
+    "keywords": ["réinitialiser", "mot de passe", "oublié", "connexion", "email"]
+  },
+  {
+    "question": "Comment créer un mot de passe sécurisé ?",
+    "answer": "Utilisez au moins 12 caractères, mélangez lettres, chiffres et symboles, évitez les informations personnelles et utilisez un mot de passe unique pour chaque service.",
+    "category": "bonnes pratiques",
+    "keywords": ["mot de passe", "sécurisé", "fort", "caractères", "unique"]
+  },
+  {
+    "question": "Comment reconnaître un email de phishing ?",
+    "answer": "Méfiez-vous des messages urgents, des fautes inhabituelles, des liens raccourcis, des pièces jointes inattendues et des demandes d'identifiants ou de paiement.",
+    "category": "cybersécurité",
+    "keywords": ["phishing", "email", "hameçonnage", "lien", "pièce jointe", "urgent"]
+  },
+  {
+    "question": "Que faire si je n'arrive pas à me connecter ?",
+    "answer": "Vérifiez votre identifiant, votre mot de passe, votre connexion Internet et l'état de la double authentification. Si le problème persiste, contactez le support Expertisys.",
+    "category": "compte utilisateur",
+    "keywords": ["connecter", "connexion", "compte", "accès", "identifiant", "authentification"]
+  },
+  {
+    "question": "Comment contacter le support Expertisys ?",
+    "answer": "Vous pouvez contacter le support Expertisys depuis le portail client, par e-mail à support@expertisys.example ou par téléphone pendant les horaires ouvrés.",
+    "category": "contact",
+    "keywords": ["contacter", "support", "expertisys", "email", "téléphone", "portail"]
+  },
+  {
+    "question": "Pourquoi activer la double authentification ?",
+    "answer": "La double authentification ajoute une vérification supplémentaire. Même si un mot de passe est compromis, l'accès au compte reste mieux protégé.",
+    "category": "cybersécurité",
+    "keywords": ["double authentification", "2fa", "mfa", "sécurité", "compte", "protection"]
+  },
+  {
+    "question": "Que faire si j'ai téléchargé une pièce jointe suspecte ?",
+    "answer": "Déconnectez-vous du réseau si nécessaire, n'ouvrez pas davantage le fichier, prévenez immédiatement votre référent informatique ou le support Expertisys, puis suivez leurs consignes.",
+    "category": "cybersécurité",
+    "keywords": ["pièce jointe", "suspecte", "téléchargé", "incident", "fichier", "malware"]
+  },
+  {
+    "question": "Comment sécuriser mon poste de travail ?",
+    "answer": "Verrouillez votre session en votre absence, appliquez les mises à jour, utilisez un antivirus actif, évitez les logiciels non autorisés et sauvegardez vos fichiers importants.",
+    "category": "bonnes pratiques",
+    "keywords": ["poste", "travail", "sécuriser", "mise à jour", "antivirus", "session"]
+  },
+  {
+    "question": "Comment signaler un incident de sécurité ?",
+    "answer": "Signalez rapidement l'incident via le portail Expertisys ou auprès du support. Indiquez la date, le contexte, les messages reçus et les actions déjà réalisées.",
+    "category": "cybersécurité",
+    "keywords": ["signaler", "incident", "sécurité", "support", "portail", "alerte"]
+  },
+  {
+    "question": "Comment suivre l'état de mon ticket support ?",
+    "answer": "Connectez-vous au portail client Expertisys, ouvrez la rubrique 'Mes tickets', puis consultez le statut et les dernières réponses associées à votre demande.",
+    "category": "support",
+    "keywords": ["ticket", "support", "suivre", "état", "statut", "portail"]
+  },
+  {
+    "question": "Comment créer un compte utilisateur Expertisys ?",
+    "answer": "La création d'un compte se fait généralement par invitation. Si vous n'avez pas reçu d'e-mail d'activation, demandez à votre administrateur ou au support Expertisys.",
+    "category": "compte utilisateur",
+    "keywords": ["créer", "compte", "utilisateur", "invitation", "activation", "administrateur"]
+  },
+  {
+    "question": "Que faire si mon compte est verrouillé ?",
+    "answer": "Attendez quelques minutes si le verrouillage est temporaire, puis réessayez. Si le compte reste bloqué, contactez le support Expertisys pour vérifier votre identité.",
+    "category": "compte utilisateur",
+    "keywords": ["compte", "verrouillé", "bloqué", "accès", "déverrouiller", "support"]
+  },
+  {
+    "question": "Comment modifier mon adresse e-mail de contact ?",
+    "answer": "Depuis le portail client, ouvrez les paramètres de profil. Si l'adresse e-mail est gérée par votre organisation, demandez la modification à votre administrateur.",
+    "category": "contact",
+    "keywords": ["adresse", "email", "contact", "modifier", "profil", "organisation"]
+  },
+  {
+    "question": "Quelles informations fournir au support ?",
+    "answer": "Indiquez votre identifiant, le service concerné, une description claire du problème, l'heure de l'incident, les captures utiles et les messages d'erreur observés.",
+    "category": "support",
+    "keywords": ["informations", "support", "description", "erreur", "capture", "service"]
+  },
+  {
+    "question": "Comment éviter de partager des données sensibles ?",
+    "answer": "Ne transmettez jamais de mot de passe, code de double authentification, données bancaires ou documents confidentiels dans un canal non sécurisé.",
+    "category": "bonnes pratiques",
+    "keywords": ["données sensibles", "confidentiel", "partager", "mot de passe", "code", "sécurisé"]
+  },
+  {
+    "question": "Comment vérifier qu'un site est légitime ?",
+    "answer": "Vérifiez l'adresse du site, le nom de domaine, le cadenas HTTPS, l'absence de fautes suspectes et évitez de cliquer sur des liens reçus dans des messages inattendus.",
+    "category": "cybersécurité",
+    "keywords": ["site", "légitime", "https", "domaine", "lien", "vérifier"]
+  },
+  {
+    "question": "Comment demander une assistance prioritaire ?",
+    "answer": "Ouvrez un ticket support en précisant l'impact métier, le nombre d'utilisateurs concernés et le niveau d'urgence. Le support Expertisys évaluera la priorité.",
+    "category": "support",
+    "keywords": ["assistance", "prioritaire", "urgence", "impact", "ticket", "utilisateurs"]
+  }
+]
