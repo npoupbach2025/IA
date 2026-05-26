@@ -7,6 +7,15 @@ instruction claire pour google/flan-t5-small.
 """
 
 
+# Cette règle est ajoutée à tous les prompts pour éviter que le modèle réponde
+# en anglais. Le modèle reste imparfait, mais une consigne explicite améliore
+# fortement la cohérence linguistique des réponses.
+FRENCH_ONLY_INSTRUCTION = (
+    "Règle obligatoire : réponds uniquement en français. "
+    "N'utilise pas l'anglais, sauf si l'utilisateur demande explicitement une traduction."
+)
+
+
 # Plusieurs formulations sont proposées pour chaque tâche.
 # Cela permet de tester différents comportements sans changer le reste du code.
 PROMPT_TEMPLATES = {
@@ -203,6 +212,10 @@ def build_prompt(task_type, user_text, style=None, context=None):
         user_text=user_text.strip(),
         style=style or "professionnel",
     )
+
+    # La règle de langue est placée dans chaque prompt final pour que toutes les
+    # tâches de l'application produisent une réponse en français.
+    prompt = f"{FRENCH_ONLY_INSTRUCTION}\n\n{prompt}"
 
     if context:
         # Le contexte FAQ est placé avant la consigne pour que le modèle le voie
