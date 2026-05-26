@@ -65,9 +65,12 @@ class ExpertisysLLM:
             # et adaptées à une interface de support client.
             outputs = self.model.generate(
                 **inputs,
-                max_new_tokens=120,
+                max_new_tokens=160,
                 do_sample=False,
                 num_beams=4,
+                no_repeat_ngram_size=3,
+                repetition_penalty=1.8,
+                early_stopping=True,
             )
 
             # La sortie numérique du modèle est reconvertie en texte lisible.

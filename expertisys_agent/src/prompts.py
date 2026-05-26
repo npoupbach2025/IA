@@ -12,7 +12,14 @@ instruction claire pour google/flan-t5-small.
 # fortement la cohérence linguistique des réponses.
 FRENCH_ONLY_INSTRUCTION = (
     "Règle obligatoire : réponds uniquement en français. "
-    "N'utilise pas l'anglais, sauf si l'utilisateur demande explicitement une traduction."
+    "N'utilise pas l'anglais, sauf si l'utilisateur demande explicitement une traduction. "
+    "Ne répète pas plusieurs fois la même phrase."
+)
+
+EMAIL_PROMPT_TEMPLATE = (
+    "L'utilisateur demande de rédiger un e-mail. Rédige directement un e-mail "
+    "complet en français, avec un objet, une salutation, un message clair, une "
+    "formule de politesse et une signature simple. Demande de l'utilisateur : {user_text}"
 )
 
 
@@ -178,6 +185,30 @@ PROMPT_TEMPLATES = {
 }
 
 
+def _looks_like_email_request(user_text):
+    """
+    Détecte les demandes de rédaction d'e-mail.
+
+    C'est volontairement simple : l'objectif est d'éviter que l'application
+    traite "écris-moi un mail" comme une simple question de support.
+    """
+    text = user_text.lower()
+    writing_words = [
+        "écris",
+        "ecris",
+        "écrit",
+        "ecrit",
+        "rédige",
+        "redige",
+        "prépare",
+        "prepare",
+    ]
+    email_words = ["mail", "email", "e-mail", "courriel"]
+    return any(word in text for word in writing_words) and any(
+        word in text for word in email_words
+    )
+
+
 def _select_template(task_type, user_text):
     """
     Sélectionne une formulation de prompt pour la tâche demandée.
@@ -186,6 +217,9 @@ def _select_template(task_type, user_text):
     utilisateur choisira toujours le même template. C'est plus simple à tester
     et plus propre pour une démonstration.
     """
+    if _looks_like_email_request(user_text):
+        return EMAIL_PROMPT_TEMPLATE
+
     templates = PROMPT_TEMPLATES.get(
         task_type,
         PROMPT_TEMPLATES["question_answering"],
@@ -213,10 +247,6 @@ def build_prompt(task_type, user_text, style=None, context=None):
         style=style or "professionnel",
     )
 
-    # La règle de langue est placée dans chaque prompt final pour que toutes les
-    # tâches de l'application produisent une réponse en français.
-    prompt = f"{FRENCH_ONLY_INSTRUCTION}\n\n{prompt}"
-
     if context:
         # Le contexte FAQ est placé avant la consigne pour que le modèle le voie
         # comme une information utile à prendre en compte dans sa réponse.
@@ -225,4 +255,6 @@ def build_prompt(task_type, user_text, style=None, context=None):
             f"{prompt}"
         )
 
-    return prompt
+    # La règle de langue est placée tout au début du prompt final. Elle reste
+    # donc prioritaire même quand un contexte FAQ est ajouté.
+    return f"{FRENCH_ONLY_INSTRUCTION}\n\n{prompt}"
