@@ -1,3 +1,12 @@
+"""
+Point d'entrée de l'application locale Expertisys.
+
+Ce fichier contient toute l'interface graphique Tkinter. Le rôle de main.py est
+de faire le lien entre l'utilisateur, la base FAQ locale et le modèle LLM.
+Les traitements métier sont volontairement placés dans le dossier src/ pour
+garder une structure de projet claire.
+"""
+
 import threading
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -14,14 +23,26 @@ from src.utils import (
 
 
 class ExpertisysApp:
-    """Interface locale de démonstration pour l'assistant IA Expertisys."""
+    """
+    Fenêtre principale de la maquette.
+
+    La classe regroupe :
+    - la création des composants Tkinter ;
+    - l'affichage de l'historique de conversation ;
+    - l'appel à la base de connaissances ;
+    - l'appel au modèle LLM dans un thread séparé.
+    """
 
     def __init__(self, root):
+        # La fenêtre root est créée dans la fonction main(), puis transmise ici
+        # pour que toute l'interface soit organisée dans cette classe.
         self.root = root
         self.root.title("Assistant IA Expertisys")
         self.root.geometry("1000x700")
         self.root.minsize(900, 620)
 
+        # Les couleurs sont centralisées pour faciliter la modification du
+        # style visuel sans devoir chercher dans tout le fichier.
         self.colors = {
             "header": "#123456",
             "background": "#f4f6f8",
@@ -33,12 +54,18 @@ class ExpertisysApp:
             "accent": "#1d72b8",
         }
 
+        # Ce booléen évite d'envoyer plusieurs messages en même temps pendant
+        # que le modèle est déjà en train de générer une réponse.
         self.is_generating = False
 
         # Chargement de la base de connaissances et du modèle au démarrage.
+        # Le modèle peut prendre du temps au premier lancement car Hugging Face
+        # doit parfois télécharger les fichiers.
         self.knowledge_base = KnowledgeBase()
         self.llm = ExpertisysLLM()
 
+        # Une fois les dépendances prêtes, on construit l'écran et on affiche
+        # un premier message pour guider l'utilisateur.
         self._configure_style()
         self._build_interface()
         self._add_assistant_message(
@@ -48,11 +75,18 @@ class ExpertisysApp:
         )
 
     def _configure_style(self):
-        """Configure un style ttk sobre pour la maquette."""
+        """
+        Configure le thème graphique ttk.
+
+        ttk permet d'avoir des composants plus propres que les widgets Tkinter
+        classiques. Le thème reste volontairement sobre pour une présentation
+        professionnelle devant un jury.
+        """
         self.root.configure(bg=self.colors["background"])
         style = ttk.Style()
         style.theme_use("clam")
 
+        # Styles généraux des conteneurs.
         style.configure(
             "TFrame",
             background=self.colors["background"],
@@ -65,6 +99,8 @@ class ExpertisysApp:
             "Header.TFrame",
             background=self.colors["header"],
         )
+
+        # Styles du titre et du sous-titre dans l'en-tête.
         style.configure(
             "Title.TLabel",
             background=self.colors["header"],
@@ -77,6 +113,8 @@ class ExpertisysApp:
             foreground="#d7e2ee",
             font=("Segoe UI", 10),
         )
+
+        # Styles des textes, boutons et menus déroulants.
         style.configure(
             "TLabel",
             background=self.colors["background"],
@@ -114,6 +152,14 @@ class ExpertisysApp:
 
     # Interface Tkinter principale.
     def _build_interface(self):
+        """
+        Construit la structure principale de la fenêtre.
+
+        L'écran est divisé en trois zones :
+        - un en-tête en haut ;
+        - la conversation à gauche ;
+        - un panneau d'information et d'exemples à droite.
+        """
         header = ttk.Frame(self.root, style="Header.TFrame", padding=(24, 18))
         header.pack(fill=tk.X)
 
@@ -136,11 +182,13 @@ class ExpertisysApp:
         self._build_side_panel(body)
 
     def _build_chat_area(self, parent):
+        """Crée la zone centrale : choix de tâche, historique et saisie."""
         chat_frame = ttk.Frame(parent, style="Panel.TFrame", padding=12)
         chat_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
         chat_frame.rowconfigure(1, weight=1)
         chat_frame.columnconfigure(0, weight=1)
 
+        # Ligne supérieure : sélection du type de tâche et du style de réécriture.
         options = ttk.Frame(chat_frame, style="Panel.TFrame")
         options.grid(row=0, column=0, sticky="ew", pady=(0, 10))
         options.columnconfigure(1, weight=1)
@@ -184,6 +232,8 @@ class ExpertisysApp:
         self.style_combo.grid(row=0, column=3, sticky="ew")
 
         # Zone de chat avec historique des messages.
+        # Un Canvas est utilisé car il permet d'ajouter un contenu défilable
+        # composé de bulles de conversation.
         chat_container = ttk.Frame(chat_frame, style="Panel.TFrame")
         chat_container.grid(row=1, column=0, sticky="nsew")
         chat_container.rowconfigure(0, weight=1)
@@ -210,6 +260,7 @@ class ExpertisysApp:
         self.messages_frame.bind("<Configure>", self._update_scroll_region)
         self.chat_canvas.bind("<Configure>", self._resize_messages_frame)
 
+        # Zone du bas : champ de saisie et boutons d'action.
         input_frame = ttk.Frame(chat_frame, style="Panel.TFrame")
         input_frame.grid(row=2, column=0, sticky="ew", pady=(12, 0))
         input_frame.columnconfigure(0, weight=1)
@@ -247,6 +298,13 @@ class ExpertisysApp:
         ).pack(fill=tk.X)
 
     def _build_side_panel(self, parent):
+        """
+        Crée la colonne de droite.
+
+        Elle donne des informations rapides sur le prototype et propose des
+        exemples de prompts pour tester l'application sans devoir inventer une
+        question à chaque fois.
+        """
         side_panel = ttk.Frame(parent, style="Panel.TFrame", padding=14)
         side_panel.grid(row=0, column=1, sticky="nsew")
         side_panel.columnconfigure(0, weight=1)
@@ -277,6 +335,8 @@ class ExpertisysApp:
         examples_frame.columnconfigure(0, weight=1)
 
         for index, example in enumerate(get_example_prompts()):
+            # Le lambda avec value=example mémorise la valeur actuelle de la
+            # boucle. Sans cela, tous les boutons utiliseraient le dernier exemple.
             button = ttk.Button(
                 examples_frame,
                 text=example,
@@ -307,6 +367,7 @@ class ExpertisysApp:
         ).grid(row=6, column=0, sticky=tk.W, pady=(8, 0))
 
     def _on_task_change(self, _event=None):
+        """Active le choix de style uniquement pour la tâche de réécriture."""
         task_type = get_task_from_label(self.task_var.get())
         if task_type == "rewriting":
             self.style_combo.configure(state="readonly")
@@ -314,14 +375,22 @@ class ExpertisysApp:
             self.style_combo.configure(state="disabled")
 
     def _update_scroll_region(self, _event=None):
+        """Met à jour la zone défilable quand un nouveau message est ajouté."""
         self.chat_canvas.configure(scrollregion=self.chat_canvas.bbox("all"))
         self.chat_canvas.yview_moveto(1.0)
 
     def _resize_messages_frame(self, event):
+        """Garde les bulles de conversation adaptées à la largeur disponible."""
         self.chat_canvas.itemconfig(self.messages_window, width=event.width)
 
     # Gestion de l'historique de conversation.
     def _add_message(self, sender, text, background, anchor):
+        """
+        Ajoute une bulle dans l'historique.
+
+        Le même code sert pour l'utilisateur et l'assistant. La couleur et
+        l'alignement changent selon l'expéditeur.
+        """
         wrapper = tk.Frame(self.messages_frame, bg=self.colors["panel"])
         wrapper.pack(fill=tk.X, pady=6, padx=4)
 
@@ -352,12 +421,15 @@ class ExpertisysApp:
         self.chat_canvas.yview_moveto(1.0)
 
     def _add_user_message(self, text):
+        """Affiche un message envoyé par l'utilisateur, aligné à droite."""
         self._add_message("Vous", text, self.colors["user"], tk.E)
 
     def _add_assistant_message(self, text):
+        """Affiche une réponse de l'assistant, alignée à gauche."""
         self._add_message("Assistant Expertisys", text, self.colors["assistant"], tk.W)
 
     def _add_status_message(self, text):
+        """Affiche un petit message temporaire pendant la génération."""
         self.status_label = tk.Label(
             self.messages_frame,
             text=text,
@@ -370,23 +442,34 @@ class ExpertisysApp:
         self.chat_canvas.yview_moveto(1.0)
 
     def _remove_status_message(self):
+        """Supprime le message temporaire une fois la génération terminée."""
         if hasattr(self, "status_label") and self.status_label.winfo_exists():
             self.status_label.destroy()
 
     def insert_example(self, example):
+        """Insère un exemple de prompt dans la zone de saisie."""
         self.input_text.delete("1.0", tk.END)
         self.input_text.insert("1.0", example)
         self.input_text.focus_set()
 
     def clear_conversation(self):
+        """Efface tout l'historique affiché dans la zone de chat."""
         for widget in self.messages_frame.winfo_children():
             widget.destroy()
         self._add_assistant_message("Conversation effacée. Comment puis-je vous aider ?")
 
     def send_message(self):
+        """
+        Récupère le message utilisateur et lance la génération.
+
+        Cette méthode reste courte : elle vérifie les cas simples, affiche le
+        message utilisateur, puis délègue le travail long au thread.
+        """
         if self.is_generating:
             return
 
+        # Tkinter ajoute souvent un retour à la ligne final dans un widget Text,
+        # donc strip() permet de récupérer uniquement le vrai message.
         user_text = self.input_text.get("1.0", tk.END).strip()
         if not user_text:
             messagebox.showinfo("Message vide", "Veuillez saisir un message.")
@@ -396,11 +479,14 @@ class ExpertisysApp:
             self._add_assistant_message(self.llm.load_error)
             return
 
+        # Le message est affiché immédiatement pour que l'interface réagisse
+        # dès le clic sur Envoyer.
         self.input_text.delete("1.0", tk.END)
         self._add_user_message(user_text)
         self._set_generation_state(True)
 
         # Le thread permet de garder l'interface active pendant la génération.
+        # Sans thread, la fenêtre se figerait pendant que PyTorch calcule la réponse.
         thread = threading.Thread(
             target=self._generate_response_worker,
             args=(user_text, self.task_var.get(), self.style_var.get()),
@@ -409,6 +495,7 @@ class ExpertisysApp:
         thread.start()
 
     def _set_generation_state(self, generating):
+        """Change l'état visuel selon que le modèle travaille ou non."""
         self.is_generating = generating
         if generating:
             self.send_button.configure(state="disabled")
@@ -419,8 +506,20 @@ class ExpertisysApp:
 
     # Génération de réponse à partir du modèle et de la base Expertisys.
     def _generate_response_worker(self, user_text, task_label, style):
+        """
+        Travail exécuté dans le thread secondaire.
+
+        Attention : Tkinter n'est pas entièrement thread-safe. C'est pour cela
+        que cette méthode ne modifie pas directement l'interface. Elle prépare
+        la réponse, puis utilise root.after() pour revenir dans le thread Tkinter.
+        """
         try:
+            # On convertit le libellé affiché dans l'interface en identifiant
+            # interne utilisé par le code.
             task_type = get_task_from_label(task_label)
+
+            # Si la FAQ contient une information proche, elle est ajoutée au
+            # prompt comme contexte utile.
             context = self.knowledge_base.search(user_text)
             prompt = build_prompt(
                 task_type=task_type,
@@ -428,6 +527,9 @@ class ExpertisysApp:
                 style=style,
                 context=context,
             )
+
+            # Le prompt interne n'est jamais affiché à l'utilisateur. Il sert
+            # uniquement à guider le modèle.
             response = self.llm.generate(prompt)
             response = clean_response(response)
         except Exception as exc:
@@ -439,11 +541,13 @@ class ExpertisysApp:
         self.root.after(0, self._display_generated_response, response)
 
     def _display_generated_response(self, response):
+        """Réactive l'interface et affiche la réponse finale."""
         self._set_generation_state(False)
         self._add_assistant_message(response)
 
 
 def main():
+    """Crée la fenêtre Tkinter et lance la boucle événementielle."""
     root = tk.Tk()
     ExpertisysApp(root)
     root.mainloop()

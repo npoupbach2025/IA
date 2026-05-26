@@ -1,4 +1,6 @@
 TASK_LABELS = {
+    # Dictionnaire central entre les identifiants utilisés par le code et les
+    # libellés affichés dans l'interface Tkinter.
     "question_answering": "Répondre à une question",
     "generation": "Générer du texte",
     "rewriting": "Réécrire avec un style donné",
@@ -9,10 +11,17 @@ TASK_LABELS = {
 
 
 def clean_response(text):
-    """Nettoie la réponse pour l'afficher proprement dans l'interface."""
+    """
+    Nettoie la réponse pour l'afficher proprement dans l'interface.
+
+    Les modèles peuvent parfois produire des espaces ou lignes vides inutiles.
+    Cette fonction rend simplement le texte plus lisible dans les bulles de chat.
+    """
     if not text:
         return ""
 
+    # On supprime les espaces autour de chaque ligne puis on retire les lignes
+    # entièrement vides.
     lines = [line.strip() for line in text.strip().splitlines()]
     cleaned_lines = [line for line in lines if line]
     return "\n".join(cleaned_lines)
@@ -25,6 +34,8 @@ def get_task_label(task_type):
 
 def get_task_from_label(label):
     """Retrouve l'identifiant interne d'une tâche à partir de son libellé."""
+    # Tkinter manipule le texte visible par l'utilisateur. Le reste du code
+    # préfère utiliser des identifiants courts comme "support" ou "completion".
     for task_type, task_label in TASK_LABELS.items():
         if task_label == label:
             return task_type
@@ -32,7 +43,11 @@ def get_task_from_label(label):
 
 
 def get_example_prompts():
-    """Retourne des exemples pratiques pour tester rapidement la maquette."""
+    """
+    Retourne des exemples pratiques pour tester rapidement la maquette.
+
+    Ces exemples sont affichés sous forme de boutons dans la colonne de droite.
+    """
     return [
         "Comment créer un mot de passe sécurisé ?",
         "Comment reconnaître un email de phishing ?",

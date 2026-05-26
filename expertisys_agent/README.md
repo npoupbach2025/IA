@@ -82,6 +82,19 @@ L'application suit les étapes suivantes :
 
 La génération est exécutée dans un thread séparé afin de garder l'interface réactive pendant que le modèle produit la réponse.
 
+## Base de connaissances locale
+
+Le fichier `data/expertisys_faq.json` contient 10 000 entrées de questions/réponses fictives pour Expertisys. Les premières entrées correspondent à des cas importants écrits manuellement, puis la base est complétée par des variantes structurées autour du support, des comptes utilisateurs, des mots de passe, du contact, des bonnes pratiques et de la cybersécurité.
+
+Chaque entrée contient :
+
+- une question ;
+- une réponse ;
+- une catégorie ;
+- une liste de mots-clés.
+
+Cette base sert à tester la recherche de contexte dans la maquette. Elle reste volontairement simple et ne remplace pas une vraie base documentaire d'entreprise.
+
 ## Limites du prototype
 
 Cette maquette n'est pas un assistant de production :
