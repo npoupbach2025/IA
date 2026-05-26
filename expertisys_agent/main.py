@@ -19,8 +19,8 @@ from src.utils import (
     build_email_response,
     build_password_response,
     clean_response,
+    detect_task_type,
     get_example_prompts,
-    get_task_from_label,
     get_task_label,
     is_email_request,
     is_password_request,
@@ -194,7 +194,9 @@ class ExpertisysApp:
         chat_frame.rowconfigure(1, weight=1)
         chat_frame.columnconfigure(0, weight=1)
 
-        # Ligne supérieure : sélection du type de tâche et du style de réécriture.
+        # Ligne supérieure : la tâche est détectée automatiquement à partir du
+        # message utilisateur. On garde seulement le style comme option utile
+        # pour les demandes de reformulation.
         options = ttk.Frame(chat_frame, style="Panel.TFrame")
         options.grid(row=0, column=0, sticky="ew", pady=(0, 10))
         options.columnconfigure(1, weight=1)
@@ -204,24 +206,13 @@ class ExpertisysApp:
             row=0, column=0, sticky=tk.W, padx=(0, 8)
         )
 
-        self.task_labels = [
-            get_task_label("question_answering"),
-            get_task_label("generation"),
-            get_task_label("rewriting"),
-            get_task_label("completion"),
-            get_task_label("cybersecurity"),
-            get_task_label("support"),
-        ]
-        self.task_var = tk.StringVar(value=get_task_label("question_answering"))
-        self.task_combo = ttk.Combobox(
+        self.detected_task_var = tk.StringVar(value="Détection automatique")
+        ttk.Label(
             options,
-            textvariable=self.task_var,
-            values=self.task_labels,
-            state="readonly",
-            width=28,
-        )
-        self.task_combo.grid(row=0, column=1, sticky="ew", padx=(0, 14))
-        self.task_combo.bind("<<ComboboxSelected>>", self._on_task_change)
+            textvariable=self.detected_task_var,
+            style="Panel.TLabel",
+            font=("Segoe UI", 10, "bold"),
+        ).grid(row=0, column=1, sticky=tk.W, padx=(0, 14))
 
         ttk.Label(options, text="Style", style="Panel.TLabel").grid(
             row=0, column=2, sticky=tk.W, padx=(0, 8)
@@ -232,7 +223,7 @@ class ExpertisysApp:
             options,
             textvariable=self.style_var,
             values=["professionnel", "simple", "synthétique", "formel", "amical"],
-            state="disabled",
+            state="readonly",
             width=18,
         )
         self.style_combo.grid(row=0, column=3, sticky="ew")
@@ -426,13 +417,10 @@ class ExpertisysApp:
             justify=tk.LEFT,
         ).grid(row=6, column=0, sticky=tk.W, pady=(8, 0))
 
-    def _on_task_change(self, _event=None):
-        """Active le choix de style uniquement pour la tâche de réécriture."""
-        task_type = get_task_from_label(self.task_var.get())
-        if task_type == "rewriting":
-            self.style_combo.configure(state="readonly")
-        else:
-            self.style_combo.configure(state="disabled")
+    def _update_detected_task(self, task_type):
+        """Affiche dans l'interface la tâche détectée automatiquement."""
+        label = get_task_label(task_type)
+        self.detected_task_var.set(f"Détectée : {label}")
 
     def _update_scroll_region(self, _event=None):
         """Met à jour la zone défilable quand un nouveau message est ajouté."""
@@ -551,7 +539,7 @@ class ExpertisysApp:
         # Sans thread, la fenêtre se figerait pendant que PyTorch calcule la réponse.
         thread = threading.Thread(
             target=self._generate_response_worker,
-            args=(user_text, self.task_var.get(), self.style_var.get()),
+            args=(user_text, self.style_var.get()),
             daemon=True,
         )
         thread.start()
@@ -567,7 +555,7 @@ class ExpertisysApp:
             self._remove_status_message()
 
     # Génération de réponse à partir du modèle et de la base Expertisys.
-    def _generate_response_worker(self, user_text, task_label, style):
+    def _generate_response_worker(self, user_text, style):
         """
         Travail exécuté dans le thread secondaire.
 
@@ -576,6 +564,11 @@ class ExpertisysApp:
         la réponse, puis utilise root.after() pour revenir dans le thread Tkinter.
         """
         try:
+            # La tâche est déterminée automatiquement à partir du texte saisi.
+            # L'utilisateur n'a donc plus besoin de choisir un mode dans un menu.
+            task_type = detect_task_type(user_text)
+            self.root.after(0, self._update_detected_task, task_type)
+
             # Pour les demandes simples de rédaction de mail, on utilise une
             # réponse structurée contrôlée. Cela évite que le petit modèle
             # recopie le prompt au lieu de rédiger le message attendu.
@@ -592,10 +585,6 @@ class ExpertisysApp:
                 response = clean_response(response)
                 self.root.after(0, self._display_generated_response, response)
                 return
-
-            # On convertit le libellé affiché dans l'interface en identifiant
-            # interne utilisé par le code.
-            task_type = get_task_from_label(task_label)
 
             # Si la FAQ contient une information proche, elle est ajoutée au
             # prompt comme contexte utile.

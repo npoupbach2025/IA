@@ -12,7 +12,7 @@ L'utilisateur lance l'application avec :
 python main.py
 ```
 
-Une fenêtre locale s'ouvre. Dans cette fenêtre, l'utilisateur peut écrire une question ou une demande, choisir le type de tâche, puis obtenir une réponse générée par un modèle d'intelligence artificielle.
+Une fenêtre locale s'ouvre. Dans cette fenêtre, l'utilisateur peut écrire une question ou une demande. L'application détecte automatiquement le type de tâche, puis affiche une réponse générée par le modèle ou par une réponse contrôlée pour certains cas simples.
 
 L'application peut servir à tester plusieurs usages :
 
@@ -53,6 +53,8 @@ Message utilisateur
         ↓
 Interface Tkinter dans main.py
         ↓
+Détection automatique de la tâche
+        ↓
 Recherche dans la FAQ locale
         ↓
 Construction d'un prompt adapté
@@ -92,11 +94,12 @@ Il ne contient pas directement toute l'intelligence de l'application. Il appelle
 Quand l'utilisateur clique sur Envoyer, `main.py` fait plusieurs actions :
 
 1. il récupère le texte écrit par l'utilisateur ;
-2. il cherche une information utile dans la FAQ ;
-3. il demande à `prompts.py` de créer une consigne pour le modèle ;
-4. il demande à `model.py` de générer une réponse ;
-5. il nettoie la réponse avec `utils.py` ;
-6. il affiche la réponse dans la zone de chat.
+2. il détecte automatiquement la tâche à effectuer ;
+3. il cherche une information utile dans la FAQ ;
+4. il demande à `prompts.py` de créer une consigne pour le modèle ;
+5. il demande à `model.py` de générer une réponse si nécessaire ;
+6. il nettoie la réponse avec `utils.py` ;
+7. il affiche la réponse dans la zone de chat.
 
 Le fichier utilise aussi un `thread`. Cela permet de garder la fenêtre active pendant que le modèle réfléchit. Sans cela, l'application pourrait sembler bloquée pendant la génération.
 
@@ -277,6 +280,7 @@ Pour une maquette, c'est suffisant pour montrer le principe d'une base de connai
 Il contient notamment :
 
 - `clean_response()` : nettoie les réponses du modèle ;
+- `detect_task_type()` : choisit automatiquement la tâche selon le message ;
 - `get_task_label()` : transforme un nom technique en libellé visible ;
 - `get_task_from_label()` : transforme un libellé visible en nom technique ;
 - `get_example_prompts()` : fournit les exemples de prompts affichés dans l'interface.

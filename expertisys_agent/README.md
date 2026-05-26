@@ -68,7 +68,7 @@ Lancez l'application locale avec :
 python main.py
 ```
 
-Une fenêtre Tkinter intitulée **Assistant IA Expertisys** s'ouvre alors. L'utilisateur peut choisir le type de tâche, saisir un message, envoyer la demande et consulter la réponse dans l'historique de conversation.
+Une fenêtre Tkinter intitulée **Assistant IA Expertisys** s'ouvre alors. L'utilisateur saisit directement son message, l'application détecte automatiquement le type de tâche, puis la réponse apparaît dans l'historique de conversation.
 
 ## Documentation complémentaire
 
@@ -79,11 +79,12 @@ Le fichier `ARCHITECTURE_EXPLICATION.md` explique le projet avec un vocabulaire 
 L'application suit les étapes suivantes :
 
 1. récupération du texte utilisateur ;
-2. recherche d'un contexte utile dans `data/expertisys_faq.json` ;
-3. construction d'un prompt adapté à la tâche choisie ;
-4. génération de la réponse avec `google/flan-t5-small` ;
-5. nettoyage de la réponse ;
-6. affichage dans l'interface Tkinter.
+2. détection automatique de la tâche à effectuer ;
+3. recherche d'un contexte utile dans `data/expertisys_faq.json` ;
+4. construction d'un prompt adapté à la tâche détectée ;
+5. génération de la réponse avec `google/flan-t5-small` ou réponse contrôlée pour certains cas fréquents ;
+6. nettoyage de la réponse ;
+7. affichage dans l'interface Tkinter.
 
 La génération est exécutée dans un thread séparé afin de garder l'interface réactive pendant que le modèle produit la réponse.
 

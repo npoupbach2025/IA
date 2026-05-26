@@ -128,6 +128,120 @@ def build_password_response():
     )
 
 
+def detect_task_type(user_text):
+    """
+    Détecte automatiquement la tâche à utiliser selon le message utilisateur.
+
+    Le but est que l'utilisateur écrive naturellement, sans devoir choisir une
+    tâche dans un menu. L'ordre des règles est important : on teste d'abord les
+    intentions très spécifiques, puis les cas plus généraux.
+    """
+    text = user_text.lower()
+
+    rewriting_keywords = [
+        "réécris",
+        "reecris",
+        "reformule",
+        "corrige",
+        "améliore ce texte",
+        "ameliore ce texte",
+        "style professionnel",
+        "style formel",
+        "style simple",
+        "style amical",
+        "style synthétique",
+        "style synthetique",
+    ]
+    completion_keywords = [
+        "complète",
+        "complete",
+        "continue",
+        "termine",
+        "poursuis",
+        "développe cette idée",
+        "developpe cette idee",
+        "pour améliorer",
+        "pour ameliorer",
+    ]
+    cybersecurity_keywords = [
+        "cybersécurité",
+        "cybersecurite",
+        "sécurité",
+        "securite",
+        "phishing",
+        "hameçonnage",
+        "hameconnage",
+        "email suspect",
+        "pièce jointe",
+        "piece jointe",
+        "malware",
+        "virus",
+        "antivirus",
+        "double authentification",
+        "2fa",
+        "mfa",
+        "données sensibles",
+        "donnees sensibles",
+        "site légitime",
+        "site legitime",
+        "incident de sécurité",
+        "incident de securite",
+    ]
+    support_keywords = [
+        "support",
+        "ticket",
+        "compte bloqué",
+        "compte bloque",
+        "connexion",
+        "connecter",
+        "accès",
+        "acces",
+        "portail",
+        "assistance",
+        "contacter",
+        "activation",
+        "identifiant",
+        "adresse e-mail",
+        "adresse email",
+    ]
+    generation_keywords = [
+        "génère",
+        "genere",
+        "écris",
+        "ecris",
+        "écrit",
+        "ecrit",
+        "rédige",
+        "redige",
+        "prépare",
+        "prepare",
+        "crée un texte",
+        "cree un texte",
+        "message court",
+        "annonce",
+        "mail",
+        "email",
+        "e-mail",
+    ]
+
+    if is_email_request(text):
+        return "generation"
+    if is_password_request(text):
+        return "support"
+    if any(keyword in text for keyword in rewriting_keywords):
+        return "rewriting"
+    if any(keyword in text for keyword in completion_keywords):
+        return "completion"
+    if any(keyword in text for keyword in cybersecurity_keywords):
+        return "cybersecurity"
+    if any(keyword in text for keyword in support_keywords):
+        return "support"
+    if any(keyword in text for keyword in generation_keywords):
+        return "generation"
+
+    return "question_answering"
+
+
 def is_email_request(user_text):
     """
     Détecte si l'utilisateur demande la rédaction d'un e-mail.
