@@ -74,6 +74,16 @@ Une fenêtre Tkinter intitulée **Assistant IA Expertisys** s'ouvre alors. L'uti
 
 Le menu de tâche est réglé sur **Automatique** par défaut. Il peut être utilisé manuellement pour tester un mode précis, mais l'utilisateur n'a pas besoin de le modifier pour utiliser l'assistant.
 
+## Tests unitaires
+
+Le projet contient des tests unitaires basés sur `unittest`, inclus dans Python. Ils vérifient notamment la détection automatique des tâches, la construction des prompts, la recherche dans la FAQ, l'intégrité du fichier JSON et la configuration du modèle sans télécharger le modèle.
+
+Depuis le dossier `expertisys_agent`, lancez :
+
+```bash
+python -m unittest discover -s tests
+```
+
 ## Documentation complémentaire
 
 Le fichier `ARCHITECTURE_EXPLICATION.md` explique le projet avec un vocabulaire plus simple. Il détaille le rôle de chaque fichier, le fonctionnement général de l'application, le choix du modèle, la logique des prompts et les limites du prototype.
